@@ -16,7 +16,27 @@ instance Monad FS where
     return = FS . return
     fail = FS . fail
 
-data FluidSettings
+data Settings
 
-foreign import ccall "new_fluid_settings" newFluidSettings
-    :: IO (Ptr FluidSettings)
+data SettingsType = STNone | STNum | STInt | STStr | STBool
+    deriving (Eq, Show)
+
+foreign import ccall "new_fluid_settings" newSettings :: IO (Ptr Settings)
+
+foreign import ccall "delete_fluid_settings" deleteSettings
+    :: Ptr Settings -> IO ()
+
+foreign import ccall "fluid_settings_get_type" settingsGetType
+    :: Ptr Settings -> CString -> IO (CInt)
+
+settingsGetType' :: Ptr Settings -> String -> FS SettingsType
+settingsGetType' settings key = FS $ withCString key f
+    where
+        f cstring = do
+            s <- settingsGetType settings cstring
+            return $ case s of
+                0 -> STNum
+                1 -> STInt
+                2 -> STStr
+                3 -> STBool
+                _ -> STNone
