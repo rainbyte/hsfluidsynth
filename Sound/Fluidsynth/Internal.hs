@@ -3,6 +3,7 @@
 module Sound.Fluidsynth.Internal where
 
 import Foreign.C
+import Foreign.ForeignPtr.Safe
 import Foreign.Ptr
 
 -- | A restricted monad for FS actions.
@@ -23,11 +24,16 @@ data SettingsType = STNone | STNum | STInt | STStr | STBool
 
 foreign import ccall "new_fluid_settings" newSettings :: IO (Ptr Settings)
 
-foreign import ccall "delete_fluid_settings" deleteSettings
-    :: Ptr Settings -> IO ()
+foreign import ccall "&delete_fluid_settings" deleteSettings
+    :: FunPtr (Ptr Settings -> IO ())
 
 foreign import ccall "fluid_settings_get_type" settingsGetType
     :: Ptr Settings -> CString -> IO (CInt)
+
+makeSettings :: FS (ForeignPtr Settings)
+makeSettings = FS $ do
+    s <- newSettings
+    newForeignPtr deleteSettings s
 
 settingsGetType' :: Ptr Settings -> String -> FS SettingsType
 settingsGetType' settings key = FS $ withCString key f
