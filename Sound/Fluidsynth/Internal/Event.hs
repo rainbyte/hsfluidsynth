@@ -8,14 +8,14 @@ import Foreign.Ptr
 
 import Sound.Fluidsynth.Internal.Type
 
-data Event
+data PEvent
 
-type EventPtr = ForeignPtr Event
+type EventPtr = ForeignPtr PEvent
 
-foreign import ccall "new_fluid_event" newEvent :: IO (Ptr Event)
+foreign import ccall "new_fluid_event" newEvent :: IO (Ptr PEvent)
 
 foreign import ccall "&delete_fluid_event" deleteEvent
-    :: FunPtr (Ptr Event -> IO ())
+    :: FunPtr (Ptr PEvent -> IO ())
 
 makeEvent :: FS EventPtr
 makeEvent = FS $ newEvent >>= newForeignPtr deleteEvent

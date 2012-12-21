@@ -9,15 +9,15 @@ import Foreign.Ptr
 import Sound.Fluidsynth.Internal.Settings
 import Sound.Fluidsynth.Internal.Type
 
-data Synth
+data PSynth
 
-type SynthPtr = ForeignPtr Synth
+type SynthPtr = ForeignPtr PSynth
 
 foreign import ccall "new_fluid_synth" newSynth
-    :: Ptr Settings -> IO (Ptr Synth)
+    :: Ptr PSettings -> IO (Ptr PSynth)
 
 foreign import ccall "&delete_fluid_synth" deleteSynth
-    :: FunPtr (Ptr Synth -> IO ())
+    :: FunPtr (Ptr PSynth -> IO ())
 
 makeSynth :: SettingsPtr -> FS SynthPtr
 makeSynth settings = FS $ withForeignPtr settings $ \ptr -> do

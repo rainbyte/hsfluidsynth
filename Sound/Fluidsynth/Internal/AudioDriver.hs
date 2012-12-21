@@ -10,15 +10,15 @@ import Sound.Fluidsynth.Internal.Settings
 import Sound.Fluidsynth.Internal.Synth
 import Sound.Fluidsynth.Internal.Type
 
-data AudioDriver
+data PAudioDriver
 
-type AudioDriverPtr = ForeignPtr AudioDriver
+type AudioDriverPtr = ForeignPtr PAudioDriver
 
 foreign import ccall "new_fluid_audio_driver" newAudioDriver
-    :: Ptr Settings -> Ptr Synth -> IO (Ptr AudioDriver)
+    :: Ptr PSettings -> Ptr PSynth -> IO (Ptr PAudioDriver)
 
 foreign import ccall "&delete_fluid_audio_driver" deleteAudioDriver
-    :: FunPtr (Ptr AudioDriver -> IO ())
+    :: FunPtr (Ptr PAudioDriver -> IO ())
 
 makeAudioDriver :: SettingsPtr -> SynthPtr -> FS AudioDriverPtr
 makeAudioDriver settings synth = FS $ withForeignPtr settings $ \ptr ->

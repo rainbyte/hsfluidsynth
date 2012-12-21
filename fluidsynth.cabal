@@ -16,7 +16,7 @@ build-type:          Simple
 cabal-version:       >=1.8
 
 library
-  exposed-modules:     Sound.Fluidsynth.Internal.Synth
+  exposed-modules:     Sound.Fluidsynth
   -- other-modules:       
   build-depends:       base ==4.5.*
   extra-libraries:     fluidsynth

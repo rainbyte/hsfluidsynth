@@ -8,14 +8,14 @@ import Foreign.Ptr
 
 import Sound.Fluidsynth.Internal.Type
 
-data Sequencer
+data PSequencer
 
-type SequencerPtr = ForeignPtr Sequencer
+type SequencerPtr = ForeignPtr PSequencer
 
-foreign import ccall "new_fluid_event" newSequencer :: IO (Ptr Sequencer)
+foreign import ccall "new_fluid_event" newSequencer :: IO (Ptr PSequencer)
 
 foreign import ccall "&delete_fluid_event" deleteSequencer
-    :: FunPtr (Ptr Sequencer -> IO ())
+    :: FunPtr (Ptr PSequencer -> IO ())
 
 makeSequencer :: FS SequencerPtr
 makeSequencer = FS $ newSequencer >>= newForeignPtr deleteSequencer

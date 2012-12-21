@@ -9,15 +9,15 @@ import Foreign.Ptr
 import Sound.Fluidsynth.Internal.Synth
 import Sound.Fluidsynth.Internal.Type
 
-data Player
+data PPlayer
 
-type PlayerPtr = ForeignPtr Player
+type PlayerPtr = ForeignPtr PPlayer
 
 foreign import ccall "new_fluid_player" newPlayer
-    :: Ptr Synth -> IO (Ptr Player)
+    :: Ptr PSynth -> IO (Ptr PPlayer)
 
 foreign import ccall "&delete_fluid_player" deletePlayer
-    :: FunPtr (Ptr Player -> IO ())
+    :: FunPtr (Ptr PPlayer -> IO ())
 
 makePlayer :: SynthPtr -> FS PlayerPtr
 makePlayer synth = FS $ withForeignPtr synth $ \ptr -> do

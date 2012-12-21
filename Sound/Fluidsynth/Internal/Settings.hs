@@ -8,20 +8,20 @@ import Foreign.Ptr
 
 import Sound.Fluidsynth.Internal.Type
 
-data Settings
+data PSettings
 
-type SettingsPtr = ForeignPtr Settings
+type SettingsPtr = ForeignPtr PSettings
 
 data SettingsType = STNone | STNum | STInt | STStr | STBool
     deriving (Eq, Show)
 
-foreign import ccall "new_fluid_settings" newSettings :: IO (Ptr Settings)
+foreign import ccall "new_fluid_settings" newSettings :: IO (Ptr PSettings)
 
 foreign import ccall "&delete_fluid_settings" deleteSettings
-    :: FunPtr (Ptr Settings -> IO ())
+    :: FunPtr (Ptr PSettings -> IO ())
 
 foreign import ccall "fluid_settings_get_type" settingsGetType
-    :: Ptr Settings -> CString -> IO CInt
+    :: Ptr PSettings -> CString -> IO CInt
 
 makeSettings :: FS SettingsPtr
 makeSettings = FS $ do
