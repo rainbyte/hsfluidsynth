@@ -19,6 +19,8 @@ instance Monad FS where
 
 data Settings
 
+type SettingsPtr = ForeignPtr Settings
+
 data SettingsType = STNone | STNum | STInt | STStr | STBool
     deriving (Eq, Show)
 
@@ -30,16 +32,17 @@ foreign import ccall "&delete_fluid_settings" deleteSettings
 foreign import ccall "fluid_settings_get_type" settingsGetType
     :: Ptr Settings -> CString -> IO (CInt)
 
-makeSettings :: FS (ForeignPtr Settings)
+makeSettings :: FS SettingsPtr
 makeSettings = FS $ do
     s <- newSettings
     newForeignPtr deleteSettings s
 
-settingsGetType' :: Ptr Settings -> String -> FS SettingsType
+settingsGetType' :: SettingsPtr -> String -> FS SettingsType
 settingsGetType' settings key = FS $ withCString key f
     where
         f cstring = do
-            s <- settingsGetType settings cstring
+            s <- withForeignPtr settings $ \ptr ->
+                settingsGetType ptr cstring
             return $ case s of
                 0 -> STNum
                 1 -> STInt
