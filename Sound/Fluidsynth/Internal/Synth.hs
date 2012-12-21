@@ -16,7 +16,7 @@ type SynthPtr = ForeignPtr Synth
 foreign import ccall "new_fluid_synth" newSynth
     :: Ptr Settings -> IO (Ptr Synth)
 
-foreign import ccall "&delete_fluid_snyth" deleteSynth
+foreign import ccall "&delete_fluid_synth" deleteSynth
     :: FunPtr (Ptr Synth -> IO ())
 
 makeSynth :: SettingsPtr -> FS SynthPtr
