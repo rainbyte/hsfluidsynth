@@ -1,4 +1,4 @@
-{-# LANGUAGE EmptyDataDecls #-}
+{-# LANGUAGE EmptyDataDecls, ForeignFunctionInterface #-}
 
 module Sound.Fluidsynth.Internal.Synth where
 
