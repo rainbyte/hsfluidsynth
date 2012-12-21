@@ -21,8 +21,7 @@ foreign import ccall "&delete_fluid_audio_driver" deleteAudioDriver
     :: FunPtr (Ptr AudioDriver -> IO ())
 
 makeAudioDriver :: SettingsPtr -> SynthPtr -> FS AudioDriverPtr
-makeAudioDriver settings synth = FS $ do
-    withForeignPtr settings $ \ptr -> do
-        withForeignPtr synth $ \ptr' -> do
-            ad <- newAudioDriver ptr ptr'
-            newForeignPtr deleteAudioDriver ad
+makeAudioDriver settings synth = FS $ withForeignPtr settings $ \ptr ->
+    withForeignPtr synth $ \ptr' -> do
+        ad <- newAudioDriver ptr ptr'
+        newForeignPtr deleteAudioDriver ad

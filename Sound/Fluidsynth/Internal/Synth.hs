@@ -20,7 +20,6 @@ foreign import ccall "&delete_fluid_synth" deleteSynth
     :: FunPtr (Ptr Synth -> IO ())
 
 makeSynth :: SettingsPtr -> FS SynthPtr
-makeSynth settings = FS $ do
-    withForeignPtr settings $ \ptr -> do
-        s <- newSynth ptr
-        newForeignPtr deleteSynth s
+makeSynth settings = FS $ withForeignPtr settings $ \ptr -> do
+    s <- newSynth ptr
+    newForeignPtr deleteSynth s

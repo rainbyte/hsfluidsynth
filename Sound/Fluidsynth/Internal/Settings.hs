@@ -21,7 +21,7 @@ foreign import ccall "&delete_fluid_settings" deleteSettings
     :: FunPtr (Ptr Settings -> IO ())
 
 foreign import ccall "fluid_settings_get_type" settingsGetType
-    :: Ptr Settings -> CString -> IO (CInt)
+    :: Ptr Settings -> CString -> IO CInt
 
 makeSettings :: FS SettingsPtr
 makeSettings = FS $ do
