@@ -1,5 +1,16 @@
 module Sound.Fluidsynth where
 
+import Sound.Fluidsynth.Internal.Player
+import Sound.Fluidsynth.Internal.Synth
 import Sound.Fluidsynth.Internal.Type
-import Sound.Fluidsynth.Internal.Event
-import Sound.Fluidsynth.Internal.Sequencer
+
+data Synth = Synth { sPtr :: SynthPtr }
+    deriving (Show)
+
+data Player = Player { pPaused :: Bool, pPtr :: PlayerPtr }
+    deriving (Show)
+
+synthPlayer :: Synth -> FS Player
+synthPlayer synth = do
+    player <- makePlayer $ sPtr synth
+    return $! Player True player
