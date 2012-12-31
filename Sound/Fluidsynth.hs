@@ -1,5 +1,16 @@
-module Sound.Fluidsynth where
+module Sound.Fluidsynth
+    (newSettings
+    ,newSynth
+    ,newDriver
+    ,newPlayer
+    ,loadSF
+    ,playerAdd
+    ,playerPlay
+    ,playerJoin)
+where
 
+import Control.Monad
+import Foreign.C.String
 import Foreign.ForeignPtr.Safe
 
 import Sound.Fluidsynth.Internal
@@ -36,3 +47,25 @@ newPlayer (Synth synth) = do
         ptr' <- c'new_fluid_player ptr
         player <- newForeignPtr p'delete_fluid_player ptr'
         return $! Player player
+
+loadSF :: Synth -> String -> IO ()
+loadSF (Synth synth) path = do
+    withForeignPtr synth $ \ptr ->
+        withCAString path $ \cstr ->
+            void $ c'fluid_synth_sfload ptr cstr 1
+
+playerAdd :: Player -> String -> IO ()
+playerAdd (Player player) path = do
+    withForeignPtr player $ \ptr ->
+        withCAString path $ \cstr ->
+            void $ c'fluid_player_add ptr cstr
+
+playerPlay :: Player -> IO ()
+playerPlay (Player player) = do
+    withForeignPtr player c'fluid_player_play
+    return ()
+
+playerJoin :: Player -> IO ()
+playerJoin (Player player) = do
+    withForeignPtr player c'fluid_player_join
+    return ()
