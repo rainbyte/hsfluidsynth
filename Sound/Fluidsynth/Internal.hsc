@@ -56,7 +56,7 @@ module Sound.Fluidsynth.Internal where
 
 #opaque_t fluid_player_t
 
-#ccall new_fluid_player , IO (Ptr <fluid_player_t>)
+#ccall new_fluid_player , Ptr <fluid_synth_t> -> IO (Ptr <fluid_player_t>)
 #ccall delete_fluid_player , Ptr <fluid_player_t> -> IO ()
 #ccall fluid_player_add , Ptr <fluid_player_t> -> CString -> IO CInt
 #ccall fluid_player_play , Ptr <fluid_player_t> -> IO CInt
