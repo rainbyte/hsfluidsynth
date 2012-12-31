@@ -30,7 +30,7 @@ module Sound.Fluidsynth.Internal where
 
 #opaque_t fluid_synth_t
 
-#ccall new_fluid_synth , IO (Ptr <fluid_synth_t>)
+#ccall new_fluid_synth , Ptr <fluid_settings_t> -> IO (Ptr <fluid_synth_t>)
 #ccall delete_fluid_synth , Ptr <fluid_synth_t> -> IO ()
 #ccall fluid_synth_noteon , Ptr <fluid_synth_t> -> CInt -> CInt -> CInt \
                          -> IO CInt
@@ -46,3 +46,10 @@ module Sound.Fluidsynth.Internal where
 #ccall fluid_synth_sfload , Ptr <fluid_synth_t> -> CString -> CInt -> IO CInt
 #ccall fluid_synth_sfreload , Ptr <fluid_synth_t> -> CUInt -> IO CInt
 #ccall fluid_synth_sfunload , Ptr <fluid_synth_t> -> CUInt -> CInt -> IO CInt
+
+#opaque_t fluid_audio_driver_t
+
+#ccall new_fluid_audio_driver , Ptr <fluid_settings_t> \
+                             -> Ptr <fluid_synth_t> \
+                             -> IO (Ptr <fluid_audio_driver_t>)
+#ccall delete_fluid_audio_driver , Ptr <fluid_audio_driver_t> -> IO ()
