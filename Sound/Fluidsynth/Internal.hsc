@@ -83,3 +83,35 @@ module Sound.Fluidsynth.Internal where
 #ccall fluid_event_volume , Ptr <fluid_event_t> -> CInt -> CShort -> IO ()
 #ccall fluid_event_get_source , Ptr <fluid_event_t> -> CShort
 #ccall fluid_event_get_dest , Ptr <fluid_event_t> -> CShort
+
+#opaque_t fluid_sequencer_t
+
+#callback fluid_event_callback_t , \
+          FunPtr (CUInt -> Ptr <fluid_event_t> -> Ptr <fluid_sequencer_t> \
+               -> Ptr () -> IO ())
+
+#ccall new_fluid_sequencer , IO (Ptr <fluid_sequencer_t>)
+#ccall delete_fluid_sequencer , Ptr <fluid_sequencer_t> -> IO ()
+#ccall fluid_sequencer_register_client , Ptr <fluid_sequencer_t> -> CString \
+                                      -> Ptr <fluid_event_callback_t> \
+                                      -> Ptr () -> IO CShort
+#ccall fluid_sequencer_unregister_client , Ptr <fluid_sequencer_t> -> CShort \
+                                        -> IO ()
+#ccall fluid_sequencer_count_clients , Ptr <fluid_sequencer_t> -> IO CInt
+#ccall fluid_sequencer_get_client_id , Ptr <fluid_sequencer_t> -> CInt \
+                                    -> IO CShort
+#ccall fluid_sequencer_get_client_name , Ptr <fluid_sequencer_t> -> CInt \
+                                      -> IO CString
+#ccall fluid_sequencer_client_is_dest , Ptr <fluid_sequencer_t> -> CInt \
+                                     -> IO CInt
+#ccall fluid_sequencer_send_now , Ptr <fluid_sequencer_t> \
+                               -> Ptr <fluid_event_t> -> IO ()
+#ccall fluid_sequencer_send_at , Ptr <fluid_sequencer_t> \
+                               -> Ptr <fluid_event_t> -> CUInt -> Int -> IO ()
+#ccall fluid_sequencer_get_tick , Ptr <fluid_sequencer_t> -> IO CUInt
+#ccall fluid_sequencer_set_time_scale , Ptr <fluid_sequencer_t> -> CDouble \
+                                     -> IO ()
+#ccall fluid_sequencer_get_time_scale , Ptr <fluid_sequencer_t> -> IO CDouble
+
+#ccall fluid_sequencer_register_fluidsynth , Ptr <fluid_sequencer_t> \
+                                          -> Ptr <fluid_synth_t> -> IO CShort
