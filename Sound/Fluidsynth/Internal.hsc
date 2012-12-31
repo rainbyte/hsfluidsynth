@@ -53,3 +53,33 @@ module Sound.Fluidsynth.Internal where
                              -> Ptr <fluid_synth_t> \
                              -> IO (Ptr <fluid_audio_driver_t>)
 #ccall delete_fluid_audio_driver , Ptr <fluid_audio_driver_t> -> IO ()
+
+#opaque_t fluid_player_t
+
+#ccall new_fluid_player , IO (Ptr <fluid_player_t>)
+#ccall delete_fluid_player , Ptr <fluid_player_t> -> IO ()
+#ccall fluid_player_add , Ptr <fluid_player_t> -> CString -> IO CInt
+#ccall fluid_player_play , Ptr <fluid_player_t> -> IO CInt
+#ccall fluid_player_stop , Ptr <fluid_player_t> -> IO CInt
+#ccall fluid_player_join , Ptr <fluid_player_t> -> IO CInt
+
+#opaque_t fluid_event_t
+
+#ccall new_fluid_event , IO (Ptr <fluid_event_t>)
+#ccall delete_fluid_event , Ptr <fluid_event_t> -> IO ()
+#ccall fluid_event_set_source , Ptr <fluid_event_t> -> CShort -> IO ()
+#ccall fluid_event_set_dest , Ptr <fluid_event_t> -> CShort -> IO ()
+#ccall fluid_event_timer , Ptr <fluid_event_t> -> Ptr () -> IO ()
+#ccall fluid_event_note , Ptr <fluid_event_t> -> CInt -> CShort -> CShort \
+                       -> CUInt -> IO ()
+#ccall fluid_event_noteon , Ptr <fluid_event_t> -> CInt -> CShort -> CShort \
+                         -> IO ()
+#ccall fluid_event_noteoff , Ptr <fluid_event_t> -> CInt -> CShort -> IO ()
+#ccall fluid_event_program_change , Ptr <fluid_event_t> -> CInt -> CShort \
+                                 -> IO ()
+#ccall fluid_event_pitch_bend , Ptr <fluid_event_t> -> CInt -> CInt -> IO ()
+#ccall fluid_event_pitch_wheelsens , Ptr <fluid_event_t> -> CInt -> CShort \
+                                  -> IO ()
+#ccall fluid_event_volume , Ptr <fluid_event_t> -> CInt -> CShort -> IO ()
+#ccall fluid_event_get_source , Ptr <fluid_event_t> -> CShort
+#ccall fluid_event_get_dest , Ptr <fluid_event_t> -> CShort
