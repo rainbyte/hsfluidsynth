@@ -4,7 +4,7 @@
 name:                fluidsynth
 version:             0.1.0.0
 synopsis:            Haskell bindings to FluidSynth
--- description:         
+description:         Simple Haskell bindings to FluidSynth.
 homepage:            https://github.com/MostAwesomeDude/hsfluidsynth
 license:             MIT
 license-file:        LICENSE
