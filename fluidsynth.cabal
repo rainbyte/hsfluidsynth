@@ -15,6 +15,10 @@ category:            Sound
 build-type:          Simple
 cabal-version:       >=1.8
 
+source-repository head
+  type:                git
+  location:            git://github.com/MostAwesomeDude/hsfluidsynth.git
+
 library
   exposed-modules:     Sound.Fluidsynth
   other-modules:       Sound.Fluidsynth.Internal
