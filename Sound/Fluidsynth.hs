@@ -1,3 +1,5 @@
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+
 module Sound.Fluidsynth
     (newSettings
     ,newSynth
@@ -6,11 +8,14 @@ module Sound.Fluidsynth
     ,loadSF
     ,playerAdd
     ,playerPlay
-    ,playerJoin)
+    ,playerJoin
+    ,synthNoteOn
+    ,synthNoteOff)
 where
 
 import Control.Monad
 import Foreign.C.String
+import Foreign.C.Types
 import Foreign.ForeignPtr.Safe
 
 import Sound.Fluidsynth.Internal
@@ -19,6 +24,13 @@ newtype Settings = Settings (ForeignPtr C'fluid_settings_t)
 newtype Synth = Synth (ForeignPtr C'fluid_synth_t)
 newtype Driver = Driver (ForeignPtr C'fluid_audio_driver_t)
 newtype Player = Player (ForeignPtr C'fluid_player_t)
+
+newtype Channel = Channel Int
+    deriving (Num)
+newtype Key = Key Int
+    deriving (Num)
+newtype Velocity = Velocity Int
+    deriving (Num)
 
 newSettings :: IO Settings
 newSettings = do
@@ -57,6 +69,17 @@ loadSF (Synth synth) path = do
     withForeignPtr synth $ \ptr ->
         withCAString path $ \cstr ->
             void $ c'fluid_synth_sfload ptr cstr 1
+
+synthNoteOn :: Synth -> Channel -> Key -> Velocity -> IO ()
+synthNoteOn (Synth synth) (Channel c) (Key k) (Velocity v) =
+    void $ withForeignPtr synth $ \ptr ->
+        c'fluid_synth_noteon ptr (fromIntegral c) (fromIntegral k)
+            (fromIntegral v)
+
+synthNoteOff :: Synth -> Channel -> Key -> IO ()
+synthNoteOff (Synth synth) (Channel c) (Key k) =
+    withForeignPtr synth $ \ptr ->
+        void $ c'fluid_synth_noteoff ptr (fromIntegral c) (fromIntegral k)
 
 playerAdd :: Player -> String -> IO ()
 playerAdd (Player player) path = do
