@@ -74,13 +74,13 @@ loadSF (Synth synth) path = do
             void $ c'fluid_synth_sfload ptr cstr 1
 
 synthNoteOn :: Synth -> Channel -> Key -> Velocity -> IO ()
-synthNoteOn (Synth synth) (Channel c) (Key k) (Velocity v) =
+synthNoteOn (Synth synth) c k v =
     void $ withForeignPtr synth $ \ptr ->
         c'fluid_synth_noteon ptr (fromIntegral c) (fromIntegral k)
             (fromIntegral v)
 
 synthNoteOff :: Synth -> Channel -> Key -> IO ()
-synthNoteOff (Synth synth) (Channel c) (Key k) =
+synthNoteOff (Synth synth) c k =
     withForeignPtr synth $ \ptr ->
         void $ c'fluid_synth_noteoff ptr (fromIntegral c) (fromIntegral k)
 
