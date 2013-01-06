@@ -2,7 +2,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                fluidsynth
-version:             0.1.0.0
+version:             0.1.1.0
 synopsis:            Haskell bindings to FluidSynth
 description:         Simple Haskell bindings to FluidSynth.
 homepage:            https://github.com/MostAwesomeDude/hsfluidsynth
@@ -22,7 +22,9 @@ source-repository head
 library
   exposed-modules:     Sound.Fluidsynth
   other-modules:       Sound.Fluidsynth.Internal
-  build-depends:       base >= 3 && < 5,
-                       bindings-DSL >= 1.0.6 && < 1.1
+  build-depends:       base >= 3 && < 5
+                     , bindings-DSL >= 1.0.6 && < 1.1
+                     , containers >= 0.4.2.1 && < 0.5
+                     , directory >= 1.2.0.1  && < 1.3
   extra-libraries:     fluidsynth
   extensions:          ForeignFunctionInterface

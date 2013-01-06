@@ -21,6 +21,7 @@ module Sound.Fluidsynth
 where
 
 import Control.Monad
+import qualified Data.Map as M
 import Foreign.C.String
 import Foreign.C.Types
 import Foreign.ForeignPtr.Safe
@@ -29,7 +30,7 @@ import Foreign.Ptr
 import Sound.Fluidsynth.Internal
 
 newtype Settings = Settings (ForeignPtr C'fluid_settings_t)
-newtype Synth = Synth (ForeignPtr C'fluid_synth_t)
+data Synth = Synth (M.Map FilePath CInt) (ForeignPtr C'fluid_synth_t)
 newtype Driver = Driver (ForeignPtr C'fluid_audio_driver_t)
 newtype Player = Player (ForeignPtr C'fluid_player_t)
 newtype Event = Event (ForeignPtr C'fluid_event_t)
@@ -58,10 +59,10 @@ newSynth (Settings settings) = do
     withForeignPtr settings $ \ptr -> do
         ptr' <- c'new_fluid_synth ptr
         synth <- newForeignPtr p'delete_fluid_synth ptr'
-        return $! Synth synth
+        return $! Synth M.empty synth
 
 newDriver :: Settings -> Synth -> IO Driver
-newDriver (Settings settings) (Synth synth) = do
+newDriver (Settings settings) (Synth _ synth) = do
     withForeignPtr settings $ \ptr -> do
         withForeignPtr synth $ \ptr' -> do
             ptr'' <- c'new_fluid_audio_driver ptr ptr'
@@ -69,26 +70,26 @@ newDriver (Settings settings) (Synth synth) = do
             return $! Driver driver
 
 newPlayer :: Synth -> IO Player
-newPlayer (Synth synth) = do
+newPlayer (Synth _ synth) = do
     withForeignPtr synth $ \ptr -> do
         ptr' <- c'new_fluid_player ptr
         player <- newForeignPtr p'delete_fluid_player ptr'
         return $! Player player
 
 loadSF :: Synth -> String -> IO ()
-loadSF (Synth synth) path = do
+loadSF (Synth _ synth) path = do
     withForeignPtr synth $ \ptr ->
         withCAString path $ \cstr ->
             void $ c'fluid_synth_sfload ptr cstr 1
 
 synthNoteOn :: Synth -> Channel -> Key -> Velocity -> IO ()
-synthNoteOn (Synth synth) c k v =
+synthNoteOn (Synth _ synth) c k v =
     void $ withForeignPtr synth $ \ptr ->
         c'fluid_synth_noteon ptr (fromIntegral c) (fromIntegral k)
             (fromIntegral v)
 
 synthNoteOff :: Synth -> Channel -> Key -> IO ()
-synthNoteOff (Synth synth) c k =
+synthNoteOff (Synth _ synth) c k =
     withForeignPtr synth $ \ptr ->
         void $ c'fluid_synth_noteoff ptr (fromIntegral c) (fromIntegral k)
 
