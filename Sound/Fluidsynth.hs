@@ -10,7 +10,9 @@ module Sound.Fluidsynth
     ,playerPlay
     ,playerJoin
     ,synthNoteOn
-    ,synthNoteOff)
+    ,synthNoteOff
+    ,eventNoteOn
+    ,eventNoteOff)
 where
 
 import Control.Monad
@@ -24,13 +26,14 @@ newtype Settings = Settings (ForeignPtr C'fluid_settings_t)
 newtype Synth = Synth (ForeignPtr C'fluid_synth_t)
 newtype Driver = Driver (ForeignPtr C'fluid_audio_driver_t)
 newtype Player = Player (ForeignPtr C'fluid_player_t)
+newtype Event = Event (ForeignPtr C'fluid_event_t)
 
 newtype Channel = Channel Int
-    deriving (Num)
+    deriving (Enum, Eq, Integral, Ord, Num, Real)
 newtype Key = Key Int
-    deriving (Num)
+    deriving (Enum, Eq, Integral, Ord, Num, Real)
 newtype Velocity = Velocity Int
-    deriving (Num)
+    deriving (Enum, Eq, Integral, Ord, Num, Real)
 
 newSettings :: IO Settings
 newSettings = do
@@ -96,3 +99,28 @@ playerJoin :: Player -> IO ()
 playerJoin (Player player) = do
     withForeignPtr player c'fluid_player_join
     return ()
+
+-- | Make an event.
+--
+--   Since the event is unpatterned, it isn't going to be very useful. End
+--   users almost certainly want the patterned event creators.
+newEvent :: IO Event
+newEvent = do
+    ptr <- c'new_fluid_event
+    event <- newForeignPtr p'delete_fluid_event ptr
+    return $! Event event
+
+eventNoteOn :: Channel -> Key -> Velocity -> IO Event
+eventNoteOn c k v = do
+    e@(Event event) <- newEvent
+    withForeignPtr event $ \ptr ->
+        c'fluid_event_noteon ptr (fromIntegral c) (fromIntegral k)
+            (fromIntegral v)
+    return e
+
+eventNoteOff :: Channel -> Key -> IO Event
+eventNoteOff c k = do
+    e@(Event event) <- newEvent
+    withForeignPtr event $ \ptr ->
+        c'fluid_event_noteoff ptr (fromIntegral c) (fromIntegral k)
+    return e
