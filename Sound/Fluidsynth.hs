@@ -1,7 +1,11 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module Sound.Fluidsynth
-    (newSettings
+    (Channel(..)
+    ,Key(..)
+    ,Velocity(..)
+    ,Program(..)
+    ,newSettings
     ,newSynth
     ,newDriver
     ,newPlayer
@@ -11,6 +15,7 @@ module Sound.Fluidsynth
     ,playerJoin
     ,synthNoteOn
     ,synthNoteOff
+    ,Event()
     ,eventNoteOn
     ,eventNoteOff)
 where
