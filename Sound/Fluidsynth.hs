@@ -19,6 +19,7 @@ import Control.Monad
 import Foreign.C.String
 import Foreign.C.Types
 import Foreign.ForeignPtr.Safe
+import Foreign.Ptr
 
 import Sound.Fluidsynth.Internal
 
@@ -33,6 +34,8 @@ newtype Channel = Channel Int
 newtype Key = Key Int
     deriving (Enum, Eq, Integral, Ord, Num, Real)
 newtype Velocity = Velocity Int
+    deriving (Enum, Eq, Integral, Ord, Num, Real)
+newtype Program = Program Int
     deriving (Enum, Eq, Integral, Ord, Num, Real)
 
 newSettings :: IO Settings
@@ -110,17 +113,36 @@ newEvent = do
     event <- newForeignPtr p'delete_fluid_event ptr
     return $! Event event
 
-eventNoteOn :: Channel -> Key -> Velocity -> IO Event
-eventNoteOn c k v = do
+-- | Make an event and call an action on it.
+--
+--   Just a combinator meant to help write the following bindings.
+withNewEvent :: (Ptr C'fluid_event_t -> IO ()) -> IO Event
+withNewEvent action = do
     e@(Event event) <- newEvent
-    withForeignPtr event $ \ptr ->
-        c'fluid_event_noteon ptr (fromIntegral c) (fromIntegral k)
-            (fromIntegral v)
+    withForeignPtr event action
     return e
 
+eventNoteOn :: Channel -> Key -> Velocity -> IO Event
+eventNoteOn c k v = withNewEvent $ \ptr ->
+    c'fluid_event_noteon ptr (fromIntegral c) (fromIntegral k)
+        (fromIntegral v)
+
 eventNoteOff :: Channel -> Key -> IO Event
-eventNoteOff c k = do
-    e@(Event event) <- newEvent
-    withForeignPtr event $ \ptr ->
-        c'fluid_event_noteoff ptr (fromIntegral c) (fromIntegral k)
-    return e
+eventNoteOff c k = withNewEvent $ \ptr ->
+    c'fluid_event_noteoff ptr (fromIntegral c) (fromIntegral k)
+
+eventPitchSens :: Channel -> Int -> IO Event
+eventPitchSens c amount = withNewEvent $ \ptr ->
+    c'fluid_event_pitch_wheelsens ptr (fromIntegral c) (fromIntegral amount)
+
+eventPitchBend :: Channel -> Int -> IO Event
+eventPitchBend c amount = withNewEvent $ \ptr ->
+    c'fluid_event_pitch_bend ptr (fromIntegral c) (fromIntegral amount)
+
+eventProgramControl :: Channel -> Program -> IO Event
+eventProgramControl c p = withNewEvent $ \ptr ->
+    c'fluid_event_program_change ptr (fromIntegral c) (fromIntegral p)
+
+eventVolume :: Channel -> Int -> IO Event
+eventVolume c amount = withNewEvent $ \ptr ->
+    c'fluid_event_volume ptr (fromIntegral c) (fromIntegral amount)
