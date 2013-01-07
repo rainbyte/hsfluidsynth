@@ -24,3 +24,4 @@ main = do
         synthNoteOn synth 0 note 127
         threadDelay $ 100 * 1000
         synthNoteOff synth 0 note
+    threadDelay $ 200 * 1000
