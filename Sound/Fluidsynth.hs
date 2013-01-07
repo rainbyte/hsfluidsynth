@@ -22,15 +22,17 @@ where
 
 import Control.Monad
 import qualified Data.Map as M
+import Data.Maybe
 import Foreign.C.String
 import Foreign.C.Types
 import Foreign.ForeignPtr.Safe
 import Foreign.Ptr
+import System.Directory
 
 import Sound.Fluidsynth.Internal
 
 newtype Settings = Settings (ForeignPtr C'fluid_settings_t)
-data Synth = Synth (M.Map FilePath CInt) (ForeignPtr C'fluid_synth_t)
+data Synth = Synth (M.Map FilePath CUInt) (ForeignPtr C'fluid_synth_t)
 newtype Driver = Driver (ForeignPtr C'fluid_audio_driver_t)
 newtype Player = Player (ForeignPtr C'fluid_player_t)
 newtype Event = Event (ForeignPtr C'fluid_event_t)
@@ -76,11 +78,35 @@ newPlayer (Synth _ synth) = do
         player <- newForeignPtr p'delete_fluid_player ptr'
         return $! Player player
 
-loadSF :: Synth -> String -> IO ()
-loadSF (Synth _ synth) path = do
+loadSF :: Synth -> String -> IO Synth
+loadSF (Synth sfmap synth) path = do
+    abspath <- canonicalizePath path
+    let msfid = M.lookup abspath sfmap
     withForeignPtr synth $ \ptr ->
-        withCAString path $ \cstr ->
-            void $ c'fluid_synth_sfload ptr cstr 1
+        withCAString abspath $ \cstr -> case msfid of
+            Just sfid -> do
+                err <- c'fluid_synth_sfreload ptr sfid
+                if err == -1
+                    then error "Couldn't reload soundfont!"
+                    else return $ Synth sfmap synth
+            Nothing -> do
+                sfid <- c'fluid_synth_sfload ptr cstr 1
+                let sfmap' = M.insert abspath (fromIntegral sfid) sfmap
+                if sfid == -1
+                    then error "Couldn't load soundfont!"
+                    else return $ Synth sfmap' synth
+
+unloadSF :: Synth -> String -> IO Synth
+unloadSF (Synth sfmap synth) path = do
+    abspath <- canonicalizePath path
+    let msfid = M.lookup abspath sfmap
+        sfid  = fromMaybe (error "Couldn't unload soundfont!") msfid
+    withForeignPtr synth $ \ptr -> do
+        err <- c'fluid_synth_sfunload ptr sfid 1
+        let sfmap' = M.delete abspath sfmap
+        if err == -1
+            then error "Couldn't unload soundfont!"
+            else return $ Synth sfmap' synth
 
 synthNoteOn :: Synth -> Channel -> Key -> Velocity -> IO ()
 synthNoteOn (Synth _ synth) c k v =
