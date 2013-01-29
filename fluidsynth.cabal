@@ -2,7 +2,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                fluidsynth
-version:             0.1.1.0
+version:             0.2.0.0
 synopsis:            Haskell bindings to FluidSynth
 description:         Simple Haskell bindings to FluidSynth.
 homepage:            https://github.com/MostAwesomeDude/hsfluidsynth
