@@ -9,6 +9,8 @@ module Sound.Fluidsynth
     ,newSynth
     ,newDriver
     ,newPlayer
+    ,Driver()
+    ,Synth()
     ,loadSF
     ,playerAdd
     ,playerPlay
