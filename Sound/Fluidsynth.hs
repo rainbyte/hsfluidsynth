@@ -34,7 +34,8 @@ import System.Directory
 import Sound.Fluidsynth.Internal
 
 newtype Settings = Settings (ForeignPtr C'fluid_settings_t)
-data Synth = Synth (M.Map FilePath CUInt) (ForeignPtr C'fluid_synth_t)
+data Synth = Synth (ForeignPtr C'fluid_settings_t) (M.Map FilePath CUInt)
+             (ForeignPtr C'fluid_synth_t)
 newtype Driver = Driver (ForeignPtr C'fluid_audio_driver_t)
 newtype Player = Player (ForeignPtr C'fluid_player_t)
 newtype Event = Event (ForeignPtr C'fluid_event_t)
@@ -63,10 +64,10 @@ newSynth (Settings settings) = do
     withForeignPtr settings $ \ptr -> do
         ptr' <- c'new_fluid_synth ptr
         synth <- newForeignPtr p'delete_fluid_synth ptr'
-        return $! Synth M.empty synth
+        return $! Synth settings M.empty synth
 
-newDriver :: Settings -> Synth -> IO Driver
-newDriver (Settings settings) (Synth _ synth) = do
+newDriver :: Synth -> IO Driver
+newDriver (Synth settings _ synth) = do
     withForeignPtr settings $ \ptr -> do
         withForeignPtr synth $ \ptr' -> do
             ptr'' <- c'new_fluid_audio_driver ptr ptr'
@@ -74,14 +75,14 @@ newDriver (Settings settings) (Synth _ synth) = do
             return $! Driver driver
 
 newPlayer :: Synth -> IO Player
-newPlayer (Synth _ synth) = do
+newPlayer (Synth _ _ synth) = do
     withForeignPtr synth $ \ptr -> do
         ptr' <- c'new_fluid_player ptr
         player <- newForeignPtr p'delete_fluid_player ptr'
         return $! Player player
 
 loadSF :: Synth -> String -> IO Synth
-loadSF (Synth sfmap synth) path = do
+loadSF (Synth settings sfmap synth) path = do
     abspath <- canonicalizePath path
     let msfid = M.lookup abspath sfmap
     withForeignPtr synth $ \ptr ->
@@ -90,16 +91,16 @@ loadSF (Synth sfmap synth) path = do
                 err <- c'fluid_synth_sfreload ptr sfid
                 if err == -1
                     then error "Couldn't reload soundfont!"
-                    else return $ Synth sfmap synth
+                    else return $ Synth settings sfmap synth
             Nothing -> do
                 sfid <- c'fluid_synth_sfload ptr cstr 1
                 let sfmap' = M.insert abspath (fromIntegral sfid) sfmap
                 if sfid == -1
                     then error "Couldn't load soundfont!"
-                    else return $ Synth sfmap' synth
+                    else return $ Synth settings sfmap' synth
 
 unloadSF :: Synth -> String -> IO Synth
-unloadSF (Synth sfmap synth) path = do
+unloadSF (Synth settings sfmap synth) path = do
     abspath <- canonicalizePath path
     let msfid = M.lookup abspath sfmap
         sfid  = fromMaybe (error "Couldn't unload soundfont!") msfid
@@ -108,16 +109,16 @@ unloadSF (Synth sfmap synth) path = do
         let sfmap' = M.delete abspath sfmap
         if err == -1
             then error "Couldn't unload soundfont!"
-            else return $ Synth sfmap' synth
+            else return $ Synth settings sfmap' synth
 
 synthNoteOn :: Synth -> Channel -> Key -> Velocity -> IO ()
-synthNoteOn (Synth _ synth) c k v =
+synthNoteOn (Synth _ _ synth) c k v =
     void $ withForeignPtr synth $ \ptr ->
         c'fluid_synth_noteon ptr (fromIntegral c) (fromIntegral k)
             (fromIntegral v)
 
 synthNoteOff :: Synth -> Channel -> Key -> IO ()
-synthNoteOff (Synth _ synth) c k =
+synthNoteOff (Synth _ _ synth) c k =
     withForeignPtr synth $ \ptr ->
         void $ c'fluid_synth_noteoff ptr (fromIntegral c) (fromIntegral k)
 

@@ -9,7 +9,7 @@ main = do
     settings <- newSettings
     synth <- newSynth settings
     loadSF synth soundfont
-    driver <- newDriver settings synth
+    driver <- newDriver synth
     player <- newPlayer synth
     playerAdd player midi
     playerPlay player

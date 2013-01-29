@@ -18,7 +18,7 @@ main = do
     sf:_ <- getArgs
     settings <- newSettings
     synth <- newSynth settings
-    driver <- newDriver settings synth
+    driver <- newDriver synth
     loadSF synth sf
     forM notes $ \note -> do
         synthNoteOn synth 0 note 127
